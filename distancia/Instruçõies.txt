@@ -1,0 +1,12 @@
+Desafio Java
+
+O controlador da Classe de Domínio "Percurso" calcularia o melhor caminho baseado nas medidas inseridas referentes ao mapa escolhido.
+Toda a estrutura da aplicação está pronta com referência aos pontos, mapa, distâncias e percurso.
+
+Foi criado um banco de dados em MySQL em conjunto com a aplicação.
+
+Dentro do método save() seriam chamados os métodos criandoPercurso() e calculaCustoViagem() que traçaria o percurso mais curto e 
+calculasse o custo da viagem.
+
+
+
