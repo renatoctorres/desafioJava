@@ -34,8 +34,12 @@ class MedidaController {
             respond medidaInstance.errors, view:'create'
             return
         }
-
-        medidaInstance.save flush:true
+		
+        //ADICIONANDO MEDIDA INVERSA
+		
+		Medida medidaInversa = criandoMedidaInversa(medidaInstance)
+		medidaInversa.save flush:true
+		medidaInstance.save flush:true
 
         request.withFormat {
             form multipartForm {
@@ -45,6 +49,16 @@ class MedidaController {
             '*' { respond medidaInstance, [status: CREATED] }
         }
     }
+	
+	//CRIANDO MEDIDA INVERSA
+	
+	def criandoMedidaInversa(Medida medidaInstance){
+		Medida medidaInversa = new Medida()
+		medidaInversa.origem = medidaInstance.destino
+		medidaInversa.destino = medidaInstance.origem
+		medidaInversa.valor = medidaInstance.valor
+		return medidaInversa
+	}
 
     def edit(Medida medidaInstance) {
         respond medidaInstance

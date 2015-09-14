@@ -7,7 +7,7 @@
 		<g:message code="ponto.letra.label" default="Letra" />
 		<span class="required-indicator">*</span>
 	</label>
-	<g:select name="letra" from="${pontoInstance.constraints.letra.inList}" required="" value="${pontoInstance?.letra}" valueMessagePrefix="ponto.letra"/>
+	<g:select name="letra" from="${pontoInstance.constraints.letra.inList}" required="" value="${pontoInstance?.letra}" optionValue="letra" valueMessagePrefix="ponto.letra"/>
 
 </div>
 

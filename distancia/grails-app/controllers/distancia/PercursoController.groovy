@@ -22,34 +22,6 @@ class PercursoController {
     def create() {
         respond new Percurso(params)
     }
-	
-	def criandoPercurso(Percurso percursoInstance){
-		Medida medida = Medida.findByOrigemAndDestinoAndMapa(percursoInstance.origem,percursoInstance.destino,percursoInstance.mapa)
-		if (medida != null){
-			percursoInstance.distanciaTotal = medida.valor
-		}
-		if (medida == null){
-			Medida medida1 = Medida.findByOrigemAndMapa(percursoInstance.origem,percursoInstance.mapa)
-			if (medida1 != null){
-				Medida medida2 = Medida.findByOrigemAndDestinoAndMapa(medida1.destino,percursoInstance.destino,percursoInstance.mapa)
-				if(medida2 != null){
-					percursoInstance.distanciaTotal = medida1.valor + medida2.valor
-				}
-				
-			}
-		}
-		
-		return percursoInstance
-		
-	}
-	
-	def calculaCustoViagem(Percurso percursoInstance){
-		Percurso percursoComCusto = new Percurso(percursoInstance)
-		percursoComCusto.custoViagem =  percursoInstance.distanciaTotal / percursoInstance.autonomia
-		percursoComCusto.custoViagem = percursoComCusto.custoViagem * percursoInstance.precoLitro
-		return percursoComCusto
-	}
-
 
     @Transactional
     def save(Percurso percursoInstance) {
@@ -62,8 +34,10 @@ class PercursoController {
             respond percursoInstance.errors, view:'create'
             return
         }
-
-        percursoInstance.save flush:true
+		
+		Percurso percursoCalculado = calculaPercurso(percursoInstance)
+		Percurso percursoComCusto = calculaCustoViagem(percursoCalculado)
+        percursoComCusto.save flush:true
 
         request.withFormat {
             form multipartForm {
@@ -73,6 +47,35 @@ class PercursoController {
             '*' { respond percursoInstance, [status: CREATED] }
         }
     }
+	
+	// CALCULAR MELHOR PERCURSO PARA VIAGEM 
+	
+	def calculaPercurso(Percurso percursoInstance){
+		Medida medida1 = Medida.findByOrigemAndDestinoAndMapa(percursoInstance.origem,percursoInstance.destino,percursoInstance.mapa)
+		if (medida1 != null){
+			percursoInstance.distanciaTotal = medida.valor
+		}
+		if (medida1 == null){
+			Medida medida2 = Medida.findByOrigemAndMapa(percursoInstance.origem,percursoInstance.mapa)
+			if (medida2 != null){
+				Medida medida3 = Medida.findByOrigemAndDestinoAndMapa(medida1.destino,percursoInstance.destino,percursoInstance.mapa)
+				if(medida3 != null){
+					percursoInstance.distanciaTotal = medida2.valor + medida3.valor
+				}
+			}
+		}
+		return percursoInstance
+	}
+	
+	
+	//CALCULAR O CUSTO TOTAL DA VIAGEM
+	
+	def calculaCustoViagem(Percurso percursoInstance){
+		Percurso percursoComCusto = new Percurso(percursoInstance)
+		percursoComCusto.custoViagem =  percursoInstance.distanciaTotal / percursoInstance.autonomia
+		percursoComCusto.custoViagem = percursoComCusto.custoViagem * percursoInstance.precoLitro
+		return percursoComCusto
+	}
 
     def edit(Percurso percursoInstance) {
         respond percursoInstance
@@ -90,9 +93,6 @@ class PercursoController {
             return
         }
 
-        Percurso percursoCalculado = criandoPercurso(percursoInstance)
-		Percurso percursoComCusto = calculaCustoViagem(percursoCalculado)
-		percursoInstance = percursoComCusto
         percursoInstance.save flush:true
 
         request.withFormat {
